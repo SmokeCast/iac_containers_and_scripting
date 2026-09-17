@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Plantilla para crear la Maquina Virtual de Base de Datos para Smokecast (Cloud9Ubuntu22-2026-03-24T19-59)"
+
+Parameters:
+  InstanceName:
+    Type: String
+    Default: "MVSmokeCast Databases"
+    Description: "Instancia de la mv de bases de datos para SmokeCast"
+  AMI:
+    Type: String
+    Default: "ami-08831faadaa25f971"
+    Description: "ID de AMI"
+  SGMvProduccion:
+    Type: AWS::EC2::SecurityGroup::Id
+    Default: "sg-reemplazar"
+    Description: "Grupo de seguridad de las mv de produccion"
+  SGMvIngesta:
+    Type: AWS::EC2::SecurityGroup::Id
+    Default: "sg-reemplazar"
+    Description: "Grupo de seguridad de la mv de ingesta"
+    
+Resources:
+  # MV
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      AvailabilityZone: "us-east-1c"
+      Tags:
+        - Key: "Name"
+          Value: !Ref InstanceName
+      ImageId: !Ref AMI
+      InstanceType: "t3a.medium"
+      KeyName: "vockey"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: "50"
+  # Grupo de seguridad      
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: "smokecast-databases-sg"
+      GroupDescription: "Permitir trafico SSH y HTTP desde solo las mv de produccion"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: "0.0.0.0/0"
+          # Abre puertos para los microservicios
+          # Abre puerto 5432 para postgres
+        - IpProtocol: "tcp"
+          FromPort: "5432" 
+          ToPort: "5432"
+          SourceSecurityGroupId: !Ref SGMvProduccion
+          # Abre puerto 3306
+        - IpProtocol: "tcp"
+          FromPort: "3306"
+          ToPort: "3306"
+          SourceSecurityGroupId: !Ref SGMvProduccion
+          # Abre puerto 27017
+        - IpProtocol: "tcp"
+          FromPort: "27017"
+          ToPort: "27017"
+          SourceSecurityGroupId: !Ref SGMvProduccion
+          
+          # Abre puertos para máquina de ingesta
+          # Abre puerto 5432 para postgres
+        - IpProtocol: "tcp"
+          FromPort: "5432" 
+          ToPort: "5432"
+          SourceSecurityGroupId: !Ref SGMvIngesta
+          # Abre puerto 3306
+        - IpProtocol: "tcp"
+          FromPort: "3306"
+          ToPort: "3306"
+          SourceSecurityGroupId: !Ref SGMvIngesta
+          # Abre puerto 27017
+        - IpProtocol: "tcp"
+          FromPort: "27017"
+          ToPort: "27017"
+          SourceSecurityGroupId: !Ref SGMvIngesta
+          
+Outputs:
+  InstanceId:
+    Description: "ID de SmokeCast Databases"
+    Value: !Ref EC2Instance
+  InstancePublicIP:
+    Description: "IP publica de la instancia"
+    Value: !GetAtt EC2Instance.PublicIp

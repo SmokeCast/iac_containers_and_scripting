@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Plantilla para crear las 2 Maquinas Virtuales de Produccion para Smokecast (Cloud9Ubuntu22-2026-03-24T19-59)"
+
+Parameters:
+  InstanceBaseName:
+    Type: String
+    Default: "MVSmokeCast Produccion"
+    Description: "Instancia de la mv de Producción para SmokeCast"
+  AMI:
+    Type: String
+    Default: "ami-08831faadaa25f971"
+    Description: "ID de AMI"
+  InstanceType:
+    Type: String
+    Default: "t3a.medium"
+    Description: "Tipo de instación para la mv"
+    
+Resources:
+  # Grupo de seguridad
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: "smokecast-produccion-sg"
+      GroupDescription: "Permite el trafico SSH y HTTP desde cualquier direccion"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: "0.0.0.0/0"
+        # Abre puertos 8080 - 8005 
+        - IpProtocol: "tcp"
+          FromPort: "8001" 
+          ToPort: "8005"
+          CidrIp: "0.0.0.0/0"
+  # MV 1  
+  MVSmokeCastProduccion1:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      AvailabilityZone: "us-east-1a"
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${InstanceBaseName} - 1"
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: "vockey"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: "30"
+  # MV 2
+  MVSmokeCastProduccion2:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      AvailabilityZone: "us-east-1b"
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${InstanceBaseName} - 2"
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: "vockey"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: "30"
+            
+Outputs:
+  # MV 1
+  MVProduccion1Id:
+    Description: "ID de MVSmokeCast Produccion - 1"
+    Value: !Ref MVSmokeCastProduccion1
+  MVProduccion1PublicIP:
+    Description: "IP de MVSmokeCast Produccion - 1"
+    Value: !GetAtt MVSmokeCastProduccion1.PublicIp
+  # MV 2
+  MVProduccion2Id:
+    Description: "ID de MVSmokeCast Produccion - 2"
+    Value: !Ref MVSmokeCastProduccion2
+  MVProduccion2PublicIP:
+    Description: "IP de MVSmokeCast Produccion - 2"
+    Value: !GetAtt MVSmokeCastProduccion2.PublicIp
+  # Grupo de Seguridad
+  SecurityGroupName:
+    Description: "Nombre del grupo de seguridad"
+    Value: !Ref InstanceSecurityGroup
+  SecurityGroupId:
+    Description: "ID del grupo de seguridad"
+    Value: !GetAtt InstanceSecurityGroup.GroupId

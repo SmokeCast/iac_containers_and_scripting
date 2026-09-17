@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Plantilla para crear la MV de Ingesta para SmokeCast (Cloud9Ubuntu22-2026-03-24T19-59)"
+
+Parameters:
+  InstanceName:
+    Type: String
+    Default: "MVSmokeCast Ingesta"
+    Description: "Instancia de la mv de Ingesta para SmokeCast"
+  AMI:
+    Type: String
+    Default: "ami-08831faadaa25f971"
+    Description: "ID de AMI"
+  InstanceType:
+    Type: String
+    Default: "t3a.small"
+    Description: "Tipo de instación para la mv"
+    
+Resources:
+  # Grupo de seguridad
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: "smokecast-ingesta-sg"
+      GroupDescription: "Permite solamente el trafico SSH"
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: "0.0.0.0/0"
+  # MV
+  MVSmokeCastIngesta:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      AvailabilityZone: "us-east-1d"
+      Tags:
+        - Key: "Name"
+          Value: !Ref InstanceName 
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: "vockey"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: "20"
+            
+Outputs:
+  InstanceId:
+    Description: "ID de MVSmokeCast Ingesta"
+    Value: !Ref MVSmokeCastIngesta
+  MVProduccion1PublicIP:
+    Description: "IP de MVSmokeCast Ingesta"
+    Value: !GetAtt MVSmokeCastIngesta.PublicIp
+  SecurityGroupName:
+    Description: "Nombre del grupo de seguridad"
+    Value: !Ref InstanceSecurityGroup
+  SecurityGroupId:
+    Description: "ID del grupo de seguridad"
+    Value: !GetAtt InstanceSecurityGroup.GroupId
