@@ -29,8 +29,8 @@ Resources:
           CidrIp: "0.0.0.0/0"
         # Abre puertos 8080 - 8005 
         - IpProtocol: "tcp"
-          FromPort: "8001" 
-          ToPort: "8005"
+          FromPort: "8081" 
+          ToPort: "8085"
           CidrIp: "0.0.0.0/0"
   # MV 1  
   MVSmokeCastProduccion1:
