@@ -94,7 +94,7 @@ Resources:
       ConnectionId: !Ref SmokeCastVpcLink
       PayloadFormatVersion: "1.0"
       RequestParameters:
-        "overwrite:path": "/$request.path.proxy"
+        "overwrite:path": "$request.path"
 
   Ms2Integration:
     Type: AWS::ApiGatewayV2::Integration

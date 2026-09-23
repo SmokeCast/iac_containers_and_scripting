@@ -48,6 +48,7 @@ los valores correspondientes en `.env`:
 
 ```env
 MS1_PUBLIC_BASE_PATH=/ms1
+MS1_PUBLIC_OPENAPI_URL=/ms1/openapi.json
 MS2_PUBLIC_BASE_PATH=/ms2
 MS3_PUBLIC_BASE_PATH=/ms3
 MS4_PUBLIC_BASE_PATH=/ms4

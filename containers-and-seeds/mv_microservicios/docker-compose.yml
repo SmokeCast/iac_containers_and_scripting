@@ -5,6 +5,7 @@ services:
     environment:
       SERVER_PORT: 8081
       HOST: 0.0.0.0
+      SERVER_CONTEXT_PATH: ${MS1_PUBLIC_BASE_PATH:-/}
       PUBLIC_BASE_PATH: ${MS1_PUBLIC_BASE_PATH:-/}
       PUBLIC_OPENAPI_URL: ${MS1_PUBLIC_OPENAPI_URL:-openapi.json}
       DB_URL: jdbc:mysql://${MYSQL_HOST:-127.0.0.1}:3306/db1_fire_catalog
