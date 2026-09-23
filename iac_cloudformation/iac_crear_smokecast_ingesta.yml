@@ -1,0 +1,232 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Plantilla para crear la MV de Ingesta para SmokeCast (Cloud9Ubuntu22-2026-03-24T19-59)"
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC donde se ubicará la MV de ingesta.
+
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subred donde se ubicará la MV de ingesta.
+
+  BucketName:
+    Type: String
+    Default: "smokecast-datalake"
+    Description: "Bucket para almacenar la ingesta"
+  AMI:
+    Type: String
+    Default: "ami-08831faadaa25f971"
+    Description: "ID de AMI"
+  InstanceName:
+    Type: String
+    Default: "MVSmokeCast Ingesta"
+    Description: "Instancia de la mv de Ingesta para SmokeCast"
+  InstanceType:
+    Type: String
+    Default: "t3a.small"
+    Description: "Tipo de instancia para la mv"
+  IAMRoleName:
+    Type: String
+    Default: "LabInstanceProfile"
+    Description: "Rol para la mv"
+    
+Resources:      
+  SmokeCastBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "${BucketName}-prod"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+        
+  # Grupo de seguridad
+  InstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: "smokecast-ingesta-sg"
+      GroupDescription: "Permite solamente el trafico SSH"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: "0.0.0.0/0"
+     
+  # MV
+  MVSmokeCastIngesta:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      IamInstanceProfile: !Ref IAMRoleName
+      SubnetId: !Ref SubnetId
+      Tags:
+        - Key: "Name"
+          Value: !Ref InstanceName 
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: "vockey"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: "20"
+
+  # Catálogo AWS Glue utilizado por Athena
+  AnalyticsDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: smokecast_analytics
+        Description: Catálogo analítico de SmokeCast.
+
+  FireEventsTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref AnalyticsDatabase
+      TableInput:
+        Name: fire_events
+        TableType: EXTERNAL_TABLE
+        Parameters: {classification: csv, skip.header.line.count: '1'}
+        StorageDescriptor:
+          Location: !Sub s3://${SmokeCastBucket}/ms1/fire_events/
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters: {field.delim: ',', serialization.format: ','}
+          Columns:
+            - {Name: id, Type: bigint}
+            - {Name: centroid_lat, Type: double}
+            - {Name: centroid_lon, Type: double}
+            - {Name: max_frp, Type: double}
+            - {Name: detection_count, Type: int}
+            - {Name: first_detected_at, Type: timestamp}
+            - {Name: last_detected_at, Type: timestamp}
+            - {Name: country_hint, Type: string}
+
+  FireDetectionsTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref AnalyticsDatabase
+      TableInput:
+        Name: fire_detections
+        TableType: EXTERNAL_TABLE
+        Parameters: {classification: csv, skip.header.line.count: '1'}
+        StorageDescriptor:
+          Location: !Sub s3://${SmokeCastBucket}/ms1/fire_detections/
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters: {field.delim: ',', serialization.format: ','}
+          Columns:
+            - {Name: id, Type: bigint}
+            - {Name: fire_event_id, Type: bigint}
+            - {Name: latitude, Type: double}
+            - {Name: longitude, Type: double}
+            - {Name: brightness, Type: double}
+            - {Name: frp, Type: double}
+            - {Name: confidence, Type: string}
+            - {Name: acq_date, Type: date}
+            - {Name: acq_time, Type: string}
+
+  CitiesTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref AnalyticsDatabase
+      TableInput:
+        Name: cities
+        TableType: EXTERNAL_TABLE
+        Parameters: {classification: csv, skip.header.line.count: '1'}
+        StorageDescriptor:
+          Location: !Sub s3://${SmokeCastBucket}/ms2/cities/
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters: {field.delim: ',', serialization.format: ','}
+          Columns:
+            - {Name: id, Type: bigint}
+            - {Name: name, Type: string}
+            - {Name: country, Type: string}
+            - {Name: latitude, Type: double}
+            - {Name: longitude, Type: double}
+            - {Name: population, Type: bigint}
+
+  SensitiveSitesTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref AnalyticsDatabase
+      TableInput:
+        Name: sensitive_sites
+        TableType: EXTERNAL_TABLE
+        Parameters: {classification: csv, skip.header.line.count: '1'}
+        StorageDescriptor:
+          Location: !Sub s3://${SmokeCastBucket}/ms2/sensitive_sites/
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters: {field.delim: ',', serialization.format: ','}
+          Columns:
+            - {Name: id, Type: bigint}
+            - {Name: city_id, Type: bigint}
+            - {Name: name, Type: string}
+            - {Name: type, Type: string}
+
+  WeatherReadingsTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref AnalyticsDatabase
+      TableInput:
+        Name: weather_readings
+        TableType: EXTERNAL_TABLE
+        Parameters: {classification: json}
+        StorageDescriptor:
+          Location: !Sub s3://${SmokeCastBucket}/ms3/weather_readings/
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+          Columns:
+            - {Name: city_id, Type: bigint}
+            - {Name: city_name, Type: string}
+            - {Name: city_country, Type: string}
+            - {Name: latitude, Type: double}
+            - {Name: longitude, Type: double}
+            - {Name: timestamp, Type: timestamp}
+            - {Name: temperature_c, Type: double}
+            - {Name: wind_speed_kmh, Type: double}
+            - {Name: wind_direction_deg, Type: int}
+            - {Name: pm25_ug_m3, Type: double}
+            - {Name: humidity_pct, Type: int}
+            - {Name: seed_id, Type: string}
+            
+Outputs:
+  InstanceId:
+    Description: "ID de MVSmokeCast Ingesta"
+    Value: !Ref MVSmokeCastIngesta
+  MVProduccion1PublicIP:
+    Description: "IP de MVSmokeCast Ingesta"
+    Value: !GetAtt MVSmokeCastIngesta.PublicIp
+  SecurityGroupName:
+    Description: "Nombre del grupo de seguridad"
+    Value: !Ref InstanceSecurityGroup
+  SecurityGroupId:
+    Description: "ID del grupo de seguridad"
+    Value: !GetAtt InstanceSecurityGroup.GroupId
+  DataLakeBucketName:
+    Description: Nombre del bucket S3 de ingesta.
+    Value: !Ref SmokeCastBucket
+  GlueDatabaseName:
+    Description: Base de datos Glue para Athena.
+    Value: !Ref AnalyticsDatabase

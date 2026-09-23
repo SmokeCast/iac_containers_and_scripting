@@ -1,0 +1,344 @@
+[
+  {
+    "country": "Argentina",
+    "city": "Buenos Aires",
+    "name": "Hospital Italiano de Buenos Aires",
+    "type": "hospital"
+  },
+  {
+    "country": "Argentina",
+    "city": "Buenos Aires",
+    "name": "Aeroparque Jorge Newbery",
+    "type": "airport"
+  },
+  {
+    "country": "Argentina",
+    "city": "Buenos Aires",
+    "name": "Reserva Ecológica Costanera Sur",
+    "type": "reserve"
+  },
+  {
+    "country": "Argentina",
+    "city": "Córdoba",
+    "name": "Hospital Nacional de Clínicas",
+    "type": "hospital"
+  },
+  {
+    "country": "Argentina",
+    "city": "Rosario",
+    "name": "Hospital de Niños Víctor J. Vilela",
+    "type": "hospital"
+  },
+  {
+    "country": "Argentina",
+    "city": "Mendoza",
+    "name": "Hospital Central de Mendoza",
+    "type": "hospital"
+  },
+  {
+    "country": "Bolivia",
+    "city": "Sucre",
+    "name": "Hospital Santa Bárbara",
+    "type": "hospital"
+  },
+  {
+    "country": "Bolivia",
+    "city": "Sucre",
+    "name": "Colegio Nacional Junín",
+    "type": "school"
+  },
+  {
+    "country": "Bolivia",
+    "city": "Santa Cruz de la Sierra",
+    "name": "Hospital Japonés",
+    "type": "hospital"
+  },
+  {
+    "country": "Bolivia",
+    "city": "Santa Cruz de la Sierra",
+    "name": "Aeropuerto Internacional Viru Viru",
+    "type": "airport"
+  },
+  {
+    "country": "Bolivia",
+    "city": "Cochabamba",
+    "name": "Hospital Clínico Viedma",
+    "type": "hospital"
+  },
+  {
+    "country": "Brasil",
+    "city": "São Paulo",
+    "name": "Hospital das Clínicas da FMUSP",
+    "type": "hospital"
+  },
+  {
+    "country": "Brasil",
+    "city": "São Paulo",
+    "name": "Aeroporto de Congonhas",
+    "type": "airport"
+  },
+  {
+    "country": "Brasil",
+    "city": "Rio de Janeiro",
+    "name": "Hospital Municipal Souza Aguiar",
+    "type": "hospital"
+  },
+  {
+    "country": "Brasil",
+    "city": "Rio de Janeiro",
+    "name": "Parque Nacional da Tijuca",
+    "type": "reserve"
+  },
+  {
+    "country": "Brasil",
+    "city": "Brasília",
+    "name": "Hospital de Base do Distrito Federal",
+    "type": "hospital"
+  },
+  {
+    "country": "Brasil",
+    "city": "Manaus",
+    "name": "Hospital Universitário Getúlio Vargas",
+    "type": "hospital"
+  },
+  {
+    "country": "Brasil",
+    "city": "Belém",
+    "name": "Hospital Ophir Loyola",
+    "type": "hospital"
+  },
+  {
+    "country": "Chile",
+    "city": "Santiago",
+    "name": "Hospital Clínico Universidad de Chile",
+    "type": "hospital"
+  },
+  {
+    "country": "Chile",
+    "city": "Santiago",
+    "name": "Aeropuerto Arturo Merino Benítez",
+    "type": "airport"
+  },
+  {
+    "country": "Chile",
+    "city": "Santiago",
+    "name": "Parque Metropolitano de Santiago",
+    "type": "reserve"
+  },
+  {
+    "country": "Chile",
+    "city": "Valparaíso",
+    "name": "Hospital Carlos Van Buren",
+    "type": "hospital"
+  },
+  {
+    "country": "Chile",
+    "city": "Concepción",
+    "name": "Hospital Guillermo Grant Benavente",
+    "type": "hospital"
+  },
+  {
+    "country": "Chile",
+    "city": "Antofagasta",
+    "name": "Hospital Regional Dr. Leonardo Guzmán",
+    "type": "hospital"
+  },
+  {
+    "country": "Colombia",
+    "city": "Bogotá",
+    "name": "Hospital Universitario San Ignacio",
+    "type": "hospital"
+  },
+  {
+    "country": "Colombia",
+    "city": "Bogotá",
+    "name": "Aeropuerto Internacional El Dorado",
+    "type": "airport"
+  },
+  {
+    "country": "Colombia",
+    "city": "Bogotá",
+    "name": "Universidad Nacional de Colombia",
+    "type": "school"
+  },
+  {
+    "country": "Colombia",
+    "city": "Medellín",
+    "name": "Hospital General de Medellín",
+    "type": "hospital"
+  },
+  {
+    "country": "Colombia",
+    "city": "Cali",
+    "name": "Hospital Universitario del Valle",
+    "type": "hospital"
+  },
+  {
+    "country": "Colombia",
+    "city": "Cartagena",
+    "name": "Hospital Universitario del Caribe",
+    "type": "hospital"
+  },
+  {
+    "country": "Ecuador",
+    "city": "Quito",
+    "name": "Hospital de Especialidades Eugenio Espejo",
+    "type": "hospital"
+  },
+  {
+    "country": "Ecuador",
+    "city": "Quito",
+    "name": "Parque Metropolitano Guangüiltagua",
+    "type": "reserve"
+  },
+  {
+    "country": "Ecuador",
+    "city": "Guayaquil",
+    "name": "Hospital Teodoro Maldonado Carbo",
+    "type": "hospital"
+  },
+  {
+    "country": "Ecuador",
+    "city": "Cuenca",
+    "name": "Hospital José Carrasco Arteaga",
+    "type": "hospital"
+  },
+  {
+    "country": "Ecuador",
+    "city": "Manta",
+    "name": "Hospital General Manta",
+    "type": "hospital"
+  },
+  {
+    "country": "Guyana",
+    "city": "Georgetown",
+    "name": "Georgetown Public Hospital Corporation",
+    "type": "hospital"
+  },
+  {
+    "country": "Guyana",
+    "city": "Georgetown",
+    "name": "Cheddi Jagan International Airport",
+    "type": "airport"
+  },
+  {
+    "country": "Paraguay",
+    "city": "Asunción",
+    "name": "Hospital de Clínicas de San Lorenzo",
+    "type": "hospital"
+  },
+  {
+    "country": "Paraguay",
+    "city": "Asunción",
+    "name": "Aeropuerto Internacional Silvio Pettirossi",
+    "type": "airport"
+  },
+  {
+    "country": "Paraguay",
+    "city": "Ciudad del Este",
+    "name": "Hospital Regional de Ciudad del Este",
+    "type": "hospital"
+  },
+  {
+    "country": "Perú",
+    "city": "Lima",
+    "name": "Hospital Nacional Edgardo Rebagliati Martins",
+    "type": "hospital"
+  },
+  {
+    "country": "Perú",
+    "city": "Lima",
+    "name": "Aeropuerto Internacional Jorge Chávez",
+    "type": "airport"
+  },
+  {
+    "country": "Perú",
+    "city": "Lima",
+    "name": "Refugio de Vida Silvestre Los Pantanos de Villa",
+    "type": "reserve"
+  },
+  {
+    "country": "Perú",
+    "city": "Arequipa",
+    "name": "Hospital Regional Honorio Delgado Espinoza",
+    "type": "hospital"
+  },
+  {
+    "country": "Perú",
+    "city": "Cusco",
+    "name": "Hospital Regional del Cusco",
+    "type": "hospital"
+  },
+  {
+    "country": "Perú",
+    "city": "Trujillo",
+    "name": "Hospital Regional Docente de Trujillo",
+    "type": "hospital"
+  },
+  {
+    "country": "Perú",
+    "city": "Iquitos",
+    "name": "Hospital Regional de Loreto",
+    "type": "hospital"
+  },
+  {
+    "country": "Suriname",
+    "city": "Paramaribo",
+    "name": "Academic Hospital Paramaribo",
+    "type": "hospital"
+  },
+  {
+    "country": "Suriname",
+    "city": "Paramaribo",
+    "name": "Zorg en Hoop Airport",
+    "type": "airport"
+  },
+  {
+    "country": "Uruguay",
+    "city": "Montevideo",
+    "name": "Hospital de Clínicas Dr. Manuel Quintela",
+    "type": "hospital"
+  },
+  {
+    "country": "Uruguay",
+    "city": "Montevideo",
+    "name": "Aeropuerto Internacional de Carrasco",
+    "type": "airport"
+  },
+  {
+    "country": "Uruguay",
+    "city": "Montevideo",
+    "name": "Parque Lecocq",
+    "type": "reserve"
+  },
+  {
+    "country": "Venezuela",
+    "city": "Caracas",
+    "name": "Hospital Clínico Universitario de Caracas",
+    "type": "hospital"
+  },
+  {
+    "country": "Venezuela",
+    "city": "Caracas",
+    "name": "Parque Nacional El Ávila",
+    "type": "reserve"
+  },
+  {
+    "country": "Venezuela",
+    "city": "Maracaibo",
+    "name": "Hospital Universitario de Maracaibo",
+    "type": "hospital"
+  },
+  {
+    "country": "French Guiana",
+    "city": "Cayenne",
+    "name": "Centre Hospitalier de Cayenne Andrée-Rosemon",
+    "type": "hospital"
+  },
+  {
+    "country": "French Guiana",
+    "city": "Cayenne",
+    "name": "Aéroport Félix-Éboué",
+    "type": "airport"
+  }
+]

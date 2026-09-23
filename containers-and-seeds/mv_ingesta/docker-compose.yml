@@ -1,0 +1,50 @@
+services:
+  fires-ingestion:
+    image: empuiquin24/smokecast-ingesta-fires:${IMAGE_TAG:-latest}
+    environment:
+      FIRE_DB_HOST: ${FIRE_DB_HOST}
+      FIRE_DB_PORT: ${FIRE_DB_PORT}
+      FIRE_DB_USER: ${FIRE_DB_USER}
+      FIRE_DB_PASSWORD: ${FIRE_DB_PASSWORD}
+      FIRE_DB_NAME: ${FIRE_DB_NAME}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_PREFIX: ${S3_PREFIX:-}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
+    restart: "no"
+
+  cities-ingestion:
+    image: empuiquin24/smokecast-ingesta-cities:${IMAGE_TAG:-latest}
+    environment:
+      CITIES_DB_HOST: ${CITIES_DB_HOST}
+      CITIES_DB_PORT: ${CITIES_DB_PORT}
+      CITIES_DB_USER: ${CITIES_DB_USER}
+      CITIES_DB_PASSWORD: ${CITIES_DB_PASSWORD}
+      CITIES_DB_NAME: ${CITIES_DB_NAME}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_PREFIX: ${S3_PREFIX:-}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
+    restart: "no"
+
+  weather-ingestion:
+    image: empuiquin24/smokecast-ingesta-weather:${IMAGE_TAG:-latest}
+    environment:
+      WEATHER_MONGO_HOST: ${WEATHER_MONGO_HOST}
+      WEATHER_MONGO_PORT: ${WEATHER_MONGO_PORT}
+      WEATHER_MONGO_USER: ${WEATHER_MONGO_USER}
+      WEATHER_MONGO_PASSWORD: ${WEATHER_MONGO_PASSWORD}
+      WEATHER_MONGO_DB: ${WEATHER_MONGO_DB}
+      WEATHER_MONGO_COLLECTION: ${WEATHER_MONGO_COLLECTION}
+      MONGO_AUTH_SOURCE: ${MONGO_AUTH_SOURCE:-admin}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_PREFIX: ${S3_PREFIX:-}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
+    restart: "no"

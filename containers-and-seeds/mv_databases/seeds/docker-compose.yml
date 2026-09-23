@@ -1,0 +1,45 @@
+services:
+  seed:
+    image: ${SEED_IMAGE:-empuiquin24/smokecast-seed}:${SEED_IMAGE_TAG:-latest}
+    build:
+      context: ../../../..
+      dockerfile: iac_containers_and_scripting/containers-and-seeds/mv_databases/seeds/Dockerfile
+      args:
+        VERSION: ${SEED_IMAGE_TAG:-dev}
+    environment:
+      MYSQL_HOST: mysql_db
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: db1_fire_catalog
+      POSTGRES_HOST: postgres_db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: db2_urban_exposure
+      MONGO_HOST: mongo_db
+      MONGO_URI: mongodb://mongo_db:27017
+      MONGO_PORT: 27017
+      MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_AUTH_SOURCE: admin
+      MONGO_DB_NAME: db3_atmosphere_feed
+      WEATHER_COLLECTION: weather_readings
+    command:
+      - --database
+      - ${SEED_DATABASE:-all}
+      - --fires
+      - ${SEED_FIRES:-100000}
+      - --weather
+      - ${SEED_WEATHER:-100000}
+      - --cities
+      - ${SEED_CITIES:-1300}
+      - --sites
+      - ${SEED_SITES:-25000}
+    networks:
+      - smokecast_db_network
+
+networks:
+  smokecast_db_network:
+    external: true
+    name: smokecast_db_network

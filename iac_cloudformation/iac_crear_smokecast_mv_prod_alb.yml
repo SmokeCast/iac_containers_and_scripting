@@ -1,0 +1,276 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Plantilla para la infraestructura Completa: EC2, ALB Privado, SGs, 5 Listeners y 5 Target Groups'
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Default: "vpc-0b8a6c094858e183b"
+    Description: 'ID de la VPC'
+
+  Subnet1Id:
+    Type: AWS::EC2::Subnet::Id
+    Default: "subnet-08bb3dd9f47695f13"
+    Description: "ID de la Subred 1 (ej. us-east-1a) para la MV 1 y nodo 1 del ALB"
+
+  Subnet2Id:
+    Type: AWS::EC2::Subnet::Id
+    Default: "subnet-052c8692688ba9601"
+    Description: "ID de la Subred 2 (ej. us-east-1b) para la MV 2 y nodo 2 del ALB"
+
+  InstanceBaseName:
+    Type: String
+    Default: "MVSmokeCast Produccion"
+    Description: "Instancia de la mv de Producción para SmokeCast"
+    
+  AMI:
+    Type: String
+    Default: "ami-08831faadaa25f971"
+    Description: "ID de AMI"
+    
+  InstanceType:
+    Type: String
+    Default: "t3a.medium"
+    Description: "Tipo de instación para la mv"
+
+Resources:
+  # ==========================================
+  # 1. GRUPOS DE SEGURIDAD
+  # ==========================================
+  # Grupo de seguridad para el alb privado
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "smokecast-load-balancer-sg"
+      GroupDescription: 'Permite trafico entrante en los puertos de los microservicios (8081-8085)'
+      VpcId: !Ref VpcId
+          
+  # Grupo de seguridad para las mvs
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "smokecast-produccion-sg"
+      GroupDescription: "Permite trafico SSH y HTTP solo desde el balanceador"
+      VpcId: !Ref VpcId 
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8081
+          ToPort: 8085
+          SourceSecurityGroupId: !Ref AlbSecurityGroup
+          
+  # ==========================================
+  # 2. MÁQUINAS VIRTUALES
+  # ==========================================
+  MVSmokeCastProduccion1:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Ref Subnet1Id
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${InstanceBaseName} - 1"
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: "vockey"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: "30"
+
+  MVSmokeCastProduccion2:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Ref Subnet2Id
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${InstanceBaseName} - 2"
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: "vockey"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: "30"
+            
+  # ==========================================
+  # 3. LOAD BALANCER
+  # ==========================================
+  PrivateALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: smokecast-internal-alb
+      Scheme: internal
+      Type: application
+      Subnets: 
+        - !Ref Subnet1Id
+        - !Ref Subnet2Id
+      SecurityGroups:
+        - !Ref AlbSecurityGroup
+        
+  # ==========================================
+  # 4. LISTENERS
+  # ==========================================
+  Listener8081:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 8081
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TGFires8081
+
+  Listener8082:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 8082
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TGCities8082
+
+  Listener8083:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 8083
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TGWeather8083
+
+  Listener8084:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 8084
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TGRisk8084
+
+  Listener8085:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 8085
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TGAnalytics8085
+        
+  # ==========================================
+  # 5. Target Groups
+  # ==========================================
+  TGFires8081:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: tg-fires-8081
+      Port: 8081
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: instance
+      HealthCheckPath: /health
+      Targets:
+        - Id: !Ref MVSmokeCastProduccion1
+        - Id: !Ref MVSmokeCastProduccion2
+
+  TGCities8082:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: tg-cities-8082
+      Port: 8082
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: instance
+      HealthCheckPath: /health
+      Targets:
+        - Id: !Ref MVSmokeCastProduccion1
+        - Id: !Ref MVSmokeCastProduccion2
+
+  TGWeather8083:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: tg-weather-8083
+      Port: 8083
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: instance
+      HealthCheckPath: /health
+      Targets:
+        - Id: !Ref MVSmokeCastProduccion1
+        - Id: !Ref MVSmokeCastProduccion2
+
+  TGRisk8084:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: tg-risk-8084
+      Port: 8084
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: instance
+      HealthCheckPath: /health
+      Targets:
+        - Id: !Ref MVSmokeCastProduccion1
+        - Id: !Ref MVSmokeCastProduccion2
+
+  TGAnalytics8085:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: tg-analytics-8085
+      Port: 8085
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: instance
+      HealthCheckPath: /health
+      Targets:
+        - Id: !Ref MVSmokeCastProduccion1
+        - Id: !Ref MVSmokeCastProduccion2
+        
+Outputs:
+  MVProduccion1Id:
+    Description: "ID de MVSmokeCast Produccion - 1"
+    Value: !Ref MVSmokeCastProduccion1
+    
+  MVProduccion2Id:
+    Description: "ID de MVSmokeCast Produccion - 2"
+    Value: !Ref MVSmokeCastProduccion2
+  
+  InstanceSecurityGroupId:
+    Description: "ID del grupo de seguridad de las MVs"
+    Value: !GetAtt InstanceSecurityGroup.GroupId
+    
+  AlbDnsName:
+    Description: "DNS interno del Load Balancer"
+    Value: !GetAtt PrivateALB.DNSName
+
+  AlbSecurityGroupId:
+    Description: "ID del Grupo de Seguridad del ALB"
+    Value: !Ref AlbSecurityGroup
+
+  Listener8081Arn:
+    Description: "ARN del listener de MS1"
+    Value: !Ref Listener8081
+
+  Listener8082Arn:
+    Description: "ARN del listener de MS2"
+    Value: !Ref Listener8082
+
+  Listener8083Arn:
+    Description: "ARN del listener de MS3"
+    Value: !Ref Listener8083
+
+  Listener8084Arn:
+    Description: "ARN del listener de MS4"
+    Value: !Ref Listener8084
+
+  Listener8085Arn:
+    Description: "ARN del listener de MS5"
+    Value: !Ref Listener8085

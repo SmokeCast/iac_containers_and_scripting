@@ -1,0 +1,199 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ' API Gateway HTTP público conectado mediante VPC Link al ALB interno de SmokeCast. No crea una VPC ni modifica los microservicios.'
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC donde existe el ALB de SmokeCast.
+
+  Subnet1Id:
+    Type: AWS::EC2::Subnet::Id
+    Description: Primera subred para las interfaces del VPC Link.
+
+  Subnet2Id:
+    Type: AWS::EC2::Subnet::Id
+    Description: Segunda subred para las interfaces del VPC Link.
+
+  AlbSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security Group asociado al ALB interno.
+
+  Listener8081Arn:
+    Type: String
+    Description: ARN del listener del ALB que dirige a MS1.
+
+  Listener8082Arn:
+    Type: String
+    Description: ARN del listener del ALB que dirige a MS2.
+
+  Listener8083Arn:
+    Type: String
+    Description: ARN del listener del ALB que dirige a MS3.
+
+  Listener8084Arn:
+    Type: String
+    Description: ARN del listener del ALB que dirige a MS4.
+
+  Listener8085Arn:
+    Type: String
+    Description: ARN del listener del ALB que dirige a MS5.
+
+Resources:
+  SmokeCastHttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: smokecast-public-api
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - "*"
+        AllowHeaders:
+          - "*"
+  # Sg para el Vpc link, así solo puede realizar comunicación con el alb medianto los puertos 8081-8085.
+  ApiGatewayVpcLinkSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: smokecast-api-gateway-vpc-link-sg
+      GroupDescription: Permite la salida del VPC Link hacia el ALB de SmokeCast.
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 8081
+          ToPort: 8085
+          DestinationSecurityGroupId: !Ref AlbSecurityGroupId
+  # Asocia esa regla de seguridad a un vpc link. Este vpc link vive solo en la subnet 1 y 2.
+  SmokeCastVpcLink:
+    Type: AWS::ApiGatewayV2::VpcLink
+    Properties:
+      Name: smokecast-vpc-link
+      SubnetIds:
+        - !Ref Subnet1Id
+        - !Ref Subnet2Id
+      SecurityGroupIds:
+        - !Ref ApiGatewayVpcLinkSecurityGroup
+  # Permite que el alb solamente reciba peticiones desde el ApiGateway, le crea otra regla de entrada mejor dicho
+  AllowVpcLinkToAlb:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref AlbSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 8081
+      ToPort: 8085
+      SourceSecurityGroupId: !Ref ApiGatewayVpcLinkSecurityGroup
+  
+  Ms1Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref Listener8081Arn
+      ConnectionType: VPC_LINK
+      ConnectionId: !Ref SmokeCastVpcLink
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        "overwrite:path": "$request.path.proxy"
+
+  Ms2Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref Listener8082Arn
+      ConnectionType: VPC_LINK
+      ConnectionId: !Ref SmokeCastVpcLink
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        "overwrite:path": "$request.path.proxy"
+
+  Ms3Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref Listener8083Arn
+      ConnectionType: VPC_LINK
+      ConnectionId: !Ref SmokeCastVpcLink
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        "overwrite:path": "$request.path.proxy"
+
+  Ms4Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref Listener8084Arn
+      ConnectionType: VPC_LINK
+      ConnectionId: !Ref SmokeCastVpcLink
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        "overwrite:path": "$request.path.proxy"
+
+  Ms5Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationUri: !Ref Listener8085Arn
+      ConnectionType: VPC_LINK
+      ConnectionId: !Ref SmokeCastVpcLink
+      PayloadFormatVersion: "1.0"
+      RequestParameters:
+        "overwrite:path": "$request.path.proxy"
+
+  Ms1Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      RouteKey: ANY /ms1/{proxy+}
+      Target: !Sub integrations/${Ms1Integration}
+
+  Ms2Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      RouteKey: ANY /ms2/{proxy+}
+      Target: !Sub integrations/${Ms2Integration}
+
+  Ms3Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      RouteKey: ANY /ms3/{proxy+}
+      Target: !Sub integrations/${Ms3Integration}
+
+  Ms4Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      RouteKey: ANY /ms4/{proxy+}
+      Target: !Sub integrations/${Ms4Integration}
+
+  Ms5Route:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      RouteKey: ANY /ms5/{proxy+}
+      Target: !Sub integrations/${Ms5Integration}
+
+  DefaultApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref SmokeCastHttpApi
+      StageName: $default
+      AutoDeploy: true
+
+Outputs:
+  ApiGatewayUrl:
+    Description: Endpoint HTTPS público de API Gateway.
+    Value: !GetAtt SmokeCastHttpApi.ApiEndpoint
+
+  VpcLinkId:
+    Description: Identificador del VPC Link utilizado por las integraciones.
+    Value: !Ref SmokeCastVpcLink
+
+  VpcLinkSecurityGroupId:
+    Description: Security Group creado para las interfaces del VPC Link.
+    Value: !Ref ApiGatewayVpcLinkSecurityGroup
