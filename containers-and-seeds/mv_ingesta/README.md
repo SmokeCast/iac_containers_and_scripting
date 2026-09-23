@@ -16,4 +16,6 @@ docker compose run --rm weather-ingestion
 
 `IMAGE_TAG` permite seleccionar la versión publicada por los scripts de
 `image-publishing`. Los tres servicios son procesos puntuales y no se reinician
-automáticamente.
+automáticamente. Para ejecutarlos periódicamente, programa estos mismos
+comandos desde cron en la MV de ingesta; el README de `data-ingestion` incluye
+un script con `flock` para evitar ejecuciones solapadas.
