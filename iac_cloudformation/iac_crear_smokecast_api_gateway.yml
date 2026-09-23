@@ -88,6 +88,7 @@ Resources:
     Properties:
       ApiId: !Ref SmokeCastHttpApi
       IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
       IntegrationUri: !Ref Listener8081Arn
       ConnectionType: VPC_LINK
       ConnectionId: !Ref SmokeCastVpcLink
@@ -100,6 +101,7 @@ Resources:
     Properties:
       ApiId: !Ref SmokeCastHttpApi
       IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
       IntegrationUri: !Ref Listener8082Arn
       ConnectionType: VPC_LINK
       ConnectionId: !Ref SmokeCastVpcLink
@@ -112,6 +114,7 @@ Resources:
     Properties:
       ApiId: !Ref SmokeCastHttpApi
       IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
       IntegrationUri: !Ref Listener8083Arn
       ConnectionType: VPC_LINK
       ConnectionId: !Ref SmokeCastVpcLink
@@ -124,6 +127,7 @@ Resources:
     Properties:
       ApiId: !Ref SmokeCastHttpApi
       IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
       IntegrationUri: !Ref Listener8084Arn
       ConnectionType: VPC_LINK
       ConnectionId: !Ref SmokeCastVpcLink
@@ -136,6 +140,7 @@ Resources:
     Properties:
       ApiId: !Ref SmokeCastHttpApi
       IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
       IntegrationUri: !Ref Listener8085Arn
       ConnectionType: VPC_LINK
       ConnectionId: !Ref SmokeCastVpcLink
