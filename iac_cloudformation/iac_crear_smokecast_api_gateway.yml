@@ -94,7 +94,7 @@ Resources:
       ConnectionId: !Ref SmokeCastVpcLink
       PayloadFormatVersion: "1.0"
       RequestParameters:
-        "overwrite:path": "$request.path.proxy"
+        "overwrite:path": "/$request.path.proxy"
 
   Ms2Integration:
     Type: AWS::ApiGatewayV2::Integration
@@ -107,7 +107,7 @@ Resources:
       ConnectionId: !Ref SmokeCastVpcLink
       PayloadFormatVersion: "1.0"
       RequestParameters:
-        "overwrite:path": "$request.path.proxy"
+        "overwrite:path": "/$request.path.proxy"
 
   Ms3Integration:
     Type: AWS::ApiGatewayV2::Integration
@@ -120,7 +120,7 @@ Resources:
       ConnectionId: !Ref SmokeCastVpcLink
       PayloadFormatVersion: "1.0"
       RequestParameters:
-        "overwrite:path": "$request.path.proxy"
+        "overwrite:path": "/$request.path.proxy"
 
   Ms4Integration:
     Type: AWS::ApiGatewayV2::Integration
@@ -133,7 +133,7 @@ Resources:
       ConnectionId: !Ref SmokeCastVpcLink
       PayloadFormatVersion: "1.0"
       RequestParameters:
-        "overwrite:path": "$request.path.proxy"
+        "overwrite:path": "/$request.path.proxy"
 
   Ms5Integration:
     Type: AWS::ApiGatewayV2::Integration
@@ -146,7 +146,7 @@ Resources:
       ConnectionId: !Ref SmokeCastVpcLink
       PayloadFormatVersion: "1.0"
       RequestParameters:
-        "overwrite:path": "$request.path.proxy"
+        "overwrite:path": "/$request.path.proxy"
 
   Ms1Route:
     Type: AWS::ApiGatewayV2::Route
